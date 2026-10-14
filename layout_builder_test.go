@@ -123,7 +123,11 @@ func TestLayoutMetadata(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				defer l.Close()
+				defer func() {
+					if err := l.Close(); err != nil {
+						t.Error(err)
+					}
+				}()
 				payload := append(bytes.Repeat([]byte{'a'}, blockSize), bytes.Repeat([]byte{'b'}, blockSize)...)
 				first, img := layoutImage(t, l, payload, blockSize)
 				want := append(bytes.Repeat([]byte{'a'}, blockSize*2), []byte("bbb")...)
@@ -336,7 +340,11 @@ func TestLayoutCancelCloseAndWriteErrors(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer f.Close()
+	defer func() {
+		if err := f.Close(); err != nil {
+			t.Error(err)
+		}
+	}()
 	if err = l.WriteMetadata(context.Background(), f); err != nil {
 		t.Fatal(err)
 	}
@@ -364,7 +372,11 @@ func TestLayoutTimestampsAndLongSymlink(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer l.Close()
+	defer func() {
+		if err := l.Close(); err != nil {
+			t.Error(err)
+		}
+	}()
 	_, img := layoutImage(t, l, nil, 4096)
 	for name, ns := range map[string]int{"a": 0, "b": 123} {
 		info, err := fs.Stat(img, name)

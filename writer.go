@@ -572,20 +572,21 @@ func (w *erofsWriter) chunkIndexSize() int {
 
 func (w *erofsWriter) writeChunkIndex(out io.Writer, block uint64, device uint16) (int, error) {
 	var b [disk.SizeChunkIndex]byte
-	if block == builder.NullPhysicalBlock {
+	switch {
+	case block == builder.NullPhysicalBlock:
 		if w.compactIndexes {
 			binary.LittleEndian.PutUint32(b[:4], nullAddr)
 		} else {
 			binary.LittleEndian.PutUint16(b[:2], 0xffff)
 			binary.LittleEndian.PutUint32(b[4:], nullAddr)
 		}
-	} else if w.compactIndexes {
+	case w.compactIndexes:
 		// 0xffffffff is the hole marker, not an addressable block.
 		if device != 0 || block >= uint64(nullAddr) {
 			return 0, fmt.Errorf("compact chunk requires a primary-device address below %#x", nullAddr)
 		}
 		binary.LittleEndian.PutUint32(b[:4], uint32(block))
-	} else {
+	default:
 		if block >= (uint64(1)<<48)-1 {
 			return 0, fmt.Errorf("chunk address exceeds 48-bit index range")
 		}
