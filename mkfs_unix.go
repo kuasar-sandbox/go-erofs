@@ -6,7 +6,7 @@ import (
 	"io/fs"
 	"syscall"
 
-	"github.com/erofs/go-erofs/internal/builder"
+	"github.com/kuasar-sandbox/go-erofs/internal/builder"
 )
 
 // entryFromSys extracts metadata from info.Sys(). Returns nil if the

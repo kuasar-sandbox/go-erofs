@@ -7,7 +7,7 @@ import (
 	"log"
 	"os"
 
-	erofs "github.com/erofs/go-erofs"
+	erofs "github.com/kuasar-sandbox/go-erofs"
 )
 
 func ExampleOpen() {
