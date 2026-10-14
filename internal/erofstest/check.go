@@ -5,7 +5,7 @@ import (
 	"path"
 	"testing"
 
-	"github.com/erofs/go-erofs"
+	"github.com/kuasar-sandbox/go-erofs"
 )
 
 // CheckXattrs verifies that the named path has exactly the expected xattrs.

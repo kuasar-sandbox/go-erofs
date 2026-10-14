@@ -2,6 +2,26 @@
 
 A Go library for reading and creating [EROFS](https://erofs.docs.kernel.org/) filesystem images using the standard [fs.FS](https://pkg.go.dev/io/fs#FS) interface.
 
+## Kuasar fork
+
+This repository is the Kuasar-maintained fork of
+[erofs/go-erofs](https://github.com/erofs/go-erofs). It is distributed as the
+independent Go module `github.com/kuasar-sandbox/go-erofs`:
+
+```go
+import erofs "github.com/kuasar-sandbox/go-erofs"
+```
+
+Consumers should pin a tag or commit through `go.mod` and retain the resulting
+`go.sum` entries. A local `replace` directive or copied source is not required.
+The package name remains `erofs`.
+
+The planned Kuasar integration is described in
+[accelerator #178](https://github.com/kuasar-sandbox/accelerator/issues/178).
+The module-path change does not implement those planned capabilities. General
+library improvements will be kept separate from Kuasar-specific integration
+policy so that they can be proposed upstream.
+
 ## Features
 
 - **Read** EROFS images through Go's `fs.FS` interface

@@ -13,8 +13,8 @@ import (
 	"testing"
 	"time"
 
-	erofs "github.com/erofs/go-erofs"
-	"github.com/erofs/go-erofs/internal/erofstest"
+	erofs "github.com/kuasar-sandbox/go-erofs"
+	"github.com/kuasar-sandbox/go-erofs/internal/erofstest"
 )
 
 // fuzzImage holds a pre-built erofs image and the list of valid paths it contains.

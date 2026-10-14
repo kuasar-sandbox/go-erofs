@@ -9,8 +9,8 @@ import (
 	"os"
 	"sort"
 
-	"github.com/erofs/go-erofs/internal/builder"
-	"github.com/erofs/go-erofs/internal/disk"
+	"github.com/kuasar-sandbox/go-erofs/internal/builder"
+	"github.com/kuasar-sandbox/go-erofs/internal/disk"
 )
 
 // maxBlockSize is the largest block size we support. EROFS images with

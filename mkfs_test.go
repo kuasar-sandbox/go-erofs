@@ -14,10 +14,10 @@ import (
 	"testing/fstest"
 	"time"
 
-	erofs "github.com/erofs/go-erofs"
-	"github.com/erofs/go-erofs/internal/builder"
-	"github.com/erofs/go-erofs/internal/disk"
-	"github.com/erofs/go-erofs/internal/erofstest"
+	erofs "github.com/kuasar-sandbox/go-erofs"
+	"github.com/kuasar-sandbox/go-erofs/internal/builder"
+	"github.com/kuasar-sandbox/go-erofs/internal/disk"
+	"github.com/kuasar-sandbox/go-erofs/internal/erofstest"
 )
 
 // TestCreateFSSpool exercises spool mode: CreateFS without a data file.

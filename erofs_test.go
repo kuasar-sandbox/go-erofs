@@ -13,8 +13,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/erofs/go-erofs"
-	"github.com/erofs/go-erofs/internal/erofstest"
+	"github.com/kuasar-sandbox/go-erofs"
+	"github.com/kuasar-sandbox/go-erofs/internal/erofstest"
 )
 
 func TestErofs(t *testing.T) {

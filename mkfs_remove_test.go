@@ -6,8 +6,8 @@ import (
 	"io/fs"
 	"testing"
 
-	erofs "github.com/erofs/go-erofs"
-	"github.com/erofs/go-erofs/internal/erofstest"
+	erofs "github.com/kuasar-sandbox/go-erofs"
+	"github.com/kuasar-sandbox/go-erofs/internal/erofstest"
 )
 
 // TestWriterRemoveFile verifies Remove deletes a regular file and the
