@@ -101,12 +101,14 @@ jobs:
       - name: Fuzz
         run: |
           fuzz_time=10s
-          # Build the test binary once to avoid repeated compilation per target.
-          go test -c -o fuzz.test .
+          # Build one instrumented binary for coverage-guided fuzzing.
+          go test -c -fuzz=. -o fuzz.test .
+          # Keep one complete baseline on the same stable toolchain as fuzzing.
+          ./fuzz.test -test.timeout=180s
           cache_dir=$(go env GOCACHE)/fuzz
           for target in $(./fuzz.test -test.list 'Fuzz.*' 2>/dev/null | grep '^Fuzz'); do
             echo "::group::$target"
-            ./fuzz.test -test.fuzz="^${target}\$" -test.fuzztime=$fuzz_time -test.timeout=180s -test.fuzzcachedir="$cache_dir" && echo "PASS: $target" || exit 1
+            ./fuzz.test -test.run='^$' -test.fuzz="^${target}\$" -test.fuzztime=$fuzz_time -test.timeout=180s -test.fuzzcachedir="$cache_dir" && echo "PASS: $target" || exit 1
             echo "::endgroup::"
           done
 
