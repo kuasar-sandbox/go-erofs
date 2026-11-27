@@ -268,33 +268,39 @@ func TestDataRangeMultiBlockCoverage(t *testing.T) {
 }
 
 // TestDataRangeSparseChunkBased verifies that DataRange() correctly represents
-// sparse (hole-containing) chunk-based EROFS files.  It uses the existing
-// testdata fixture which contains known sparse files.
+// sparse (hole-containing) chunk-based EROFS files. The native producer creates
+// the metadata and external blob in this test's temporary directory.
 //
 // Invariants checked:
 //   - sum(Size) == info.Size() for every regular file.
 //   - Hole entries have Offset == -1.
 //   - At least one file in the fixture has a hole so we are actually
 //     exercising the hole-emission path in buildChunkDataRanges.
+//   - Nonzero content is backed by a range on the external data device.
 func TestDataRangeSparseChunkBased(t *testing.T) {
-	// basic-chunk-index.erofs stores file data on a separate blob device.
-	metaData, err := os.ReadFile("testdata/basic-chunk-index.erofs")
-	if err != nil {
-		t.Skipf("skipping: testdata not available: %v", err)
-	}
-	blobData, err := os.ReadFile("testdata/basic-chunk-index-data.erofs")
-	if err != nil {
-		t.Skipf("skipping: testdata blob not available: %v", err)
+	if _, err := erofstest.CheckMkfsVersion("1.0"); err != nil {
+		t.Skipf("skipping: %v", err)
 	}
 
-	fsys, err := erofs.Open(bytes.NewReader(metaData),
-		erofs.WithExtraDevices(bytes.NewReader(blobData)))
-	if err != nil {
-		t.Fatal("Open:", err)
-	}
+	chunkSize := os.Getpagesize()
+	size := 3*chunkSize + 17
+	marker := []byte("sparse-range-marker")
+	markerOffset := chunkSize + 23
+	expected := make([]byte, size)
+	copy(expected[markerOffset:], marker)
+	tc := erofstest.TarContext{}.WithModTime(time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC))
+	// Holes on both sides of a real data chunk exercise hole emission, while
+	// the partial final chunk exercises exact tail sizing.
+	wt := erofstest.TarAll(
+		tc.SparseFile("/sparse.bin", int64(size), marker, int64(markerOffset), 0644),
+		tc.File("/empty", nil, 0644),
+	)
+	fsys := erofstest.MkfsErofsBlobDev(chunkSize)(t, wt)
+	erofstest.CheckFileBytes(t, fsys, "sparse.bin", expected)
 
 	foundHole := false
-	err = fs.WalkDir(fsys, ".", func(p string, d fs.DirEntry, err error) error {
+	foundExternalData := false
+	err := fs.WalkDir(fsys, ".", func(p string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -331,6 +337,9 @@ func TestDataRangeSparseChunkBased(t *testing.T) {
 			if r.Offset == -1 {
 				foundHole = true
 			}
+			if r.Offset >= 0 && r.Device == 1 {
+				foundExternalData = true
+			}
 		}
 		if total != info.Size() {
 			t.Errorf("%s: sum(DataRange.Size) = %d, want %d", p, total, info.Size())
@@ -343,5 +352,8 @@ func TestDataRangeSparseChunkBased(t *testing.T) {
 
 	if !foundHole {
 		t.Error("no hole entries found in fixture — buildChunkDataRanges hole path was not exercised")
+	}
+	if !foundExternalData {
+		t.Error("no data range references the external blob device")
 	}
 }
